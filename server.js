@@ -13,7 +13,7 @@ io.on('connection', function (socket) {
         console.log('message recieved: ' + message.text);
         //socket.broadcast.emit() => sends msg to err1 excluding the sender
         //io.emit() =>sends msg to err1 including the sender
-        socket.broadcast.emit('message', message);
+       io.emit('message', message);
     });
     
     socket.emit('message', {
