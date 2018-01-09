@@ -8,7 +8,8 @@ var now = moment();
 var timestamp = 1515372268027;
 var timestampMoment = moment.utc(timestamp);
 console.log(timestampMoment.local().format('h:mm a'));
-
+var x = "100" + "400";
+console.log(x);
 
 //console.log(now.format());
 //
