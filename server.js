@@ -8,10 +8,34 @@ var moment = require('moment');
 app.use(express.static(__dirname + '/public'));
 
 var clientInfo = {};
+var currTime = moment().valueOf();
+
+//sends the currents users to the provided socket
+
+function sendCurrentUsers(socket) {
+    var info = clientInfo[socket.id];
+    var users = [];
+
+    if(typeof info === 'undefined') {
+        return;
+    }
+    Object.keys(clientInfo).forEach(function (socketId) {
+       var userInfo = clientInfo[socketId];
+
+       if(info.room === userInfo.room) {
+           users.push(userInfo.name);
+       }
+        socket.emit('message', {
+            name: 'Default User',
+            text: 'Current Users: ' + users.join(' , <hr>'),
+            timestamp: currTime
+
+        })
+    });
+}
 
 //io.on helps you listen for events
 io.on('connection', function (socket) {
-    var currTime = moment().valueOf();
     console.log('User connected via socket.io');
     
     socket.on('disconnect', function () {
@@ -39,8 +63,14 @@ io.on('connection', function (socket) {
     
     socket.on('message', function (message) {
         console.log('message recieved: ' + message.text);
-        message.chatTime = moment().valueOf();
-        io.to(clientInfo[socket.id].room).emit('message', message); 
+
+        if(message.text === '@currentUsers') {
+            sendCurrentUsers(socket);
+        } else {
+            message.chatTime = moment().valueOf();
+            io.to(clientInfo[socket.id].room).emit('message', message); 
+        }
+
     });
     
     socket.emit('message', {
