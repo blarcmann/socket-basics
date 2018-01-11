@@ -2,7 +2,7 @@ var socket = io();
 
 
 var name = getQueryVariable('name') || 'Anonymous';
-var room = getQueryVariable('room_title') || 'mojo';
+var room = getQueryVariable('room_title') || ' Curious? ';
 console.log(name + ' wants to join us ');
 
 jQuery('.room_title').text(room);
@@ -16,12 +16,14 @@ socket.on('connect', function () {
 
 socket.on('message', function (message) {
     var momentChatTime = moment.utc(message.chatTime);
-    var $message = jQuery('.messages');
+    var $messages = jQuery('.messages');
+    var $message = jQuery('<li class="list-group-item"></li>')
     console.log('New message!');
     console.log(message.text);
     
     $message.append('<p><strong>' + message.name + ' - ' + momentChatTime.local().format('h:mm a') + '</strong></p>');
     $message.append('<p>' + message.text + '</p>');
+    $messages.append($message);
 });
 
 //Handles submitting of new message
