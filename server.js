@@ -11,7 +11,21 @@ var clientInfo = {};
 
 //io.on helps you listen for events
 io.on('connection', function (socket) {
+    var currTime = moment().valueOf();
     console.log('User connected via socket.io');
+    
+    socket.on('disconnect', function () {
+        var userData = clientInfo[socket.id];
+       if(typeof userData !== 'undefined') {
+           socket.leave(userData.room);
+           io.to(userData.room).emit('message', {
+               name: 'System',
+               text: userData.name  + ' has left',
+               timestamp: currTime
+           });
+           delete clientInfo[socket.id];
+       } 
+    });
     
     socket.on('joinRoom', function (req) {
         clientInfo[socket.id] = req;
@@ -19,7 +33,7 @@ io.on('connection', function (socket) {
         socket.broadcast.to(req.room).emit('message', {
            name: 'New User',
            text: req.name + ' has joined',
-           chatTime: moment().valueOf()
+           chatTime: currTime
         });
     });
     
@@ -32,7 +46,7 @@ io.on('connection', function (socket) {
     socket.emit('message', {
         name: 'Default User',
         text: 'Welcome to the chat application',
-        chatTime: moment().valueOf()
+        chatTime: currTime
     });
 });
 
